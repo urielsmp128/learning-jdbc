@@ -4,6 +4,7 @@ import com.urielm.lil.jdbc.util.DataAccessObject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -11,13 +12,36 @@ public class CustomerDAO extends DataAccessObject<Customer> {
 
     private static final String INSERT = "INSERT INTO CUSTOMER (first_name, last_name, email," +
             "phone, address, city, state, zipcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String GET_ONE = "SELECT customer_id, first_name, last_name, email," +
+            "phone, address, city, state, zipcode FROM customer WHERE customer_id = ?";
+
     public CustomerDAO(Connection connection) {
         super(connection);
     }
 
     @Override
     public Customer findById(long id) {
-        return null;
+        Customer customer = new Customer();
+        try(PreparedStatement preparedStatement = this.connection.prepareStatement(GET_ONE);){
+            preparedStatement.setLong(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                customer.setId(resultSet.getLong("customer_id"));
+                customer.setFirstName(resultSet.getString("first_name"));
+                customer.setLastName(resultSet.getString("last_name"));
+                customer.setEmail(resultSet.getString("email"));
+                 customer.setPhone(resultSet.getString("phone"));
+                 customer.setAddress(resultSet.getString("address"));
+                 customer.setCity(resultSet.getString("city"));
+                 customer.setState(resultSet.getString("state"));
+                 customer.setZipCode(resultSet.getString("zipcode"));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return customer;
     }
 
     @Override
@@ -43,7 +67,8 @@ public class CustomerDAO extends DataAccessObject<Customer> {
             preparedStatement.setString(7, dto.getState());
             preparedStatement.setString(8, dto.getZipCode());
             preparedStatement.execute();
-            return null;
+            int id = this.getLastVal(CUSTOMER_SEQUENCE);
+            return this.findById(id);
 
         }catch (SQLException e){
             e.printStackTrace();
