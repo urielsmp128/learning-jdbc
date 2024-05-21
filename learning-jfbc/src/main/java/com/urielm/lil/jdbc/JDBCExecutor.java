@@ -14,10 +14,12 @@ public class JDBCExecutor {
         try{
             Connection connection = databaseConnectionManager.getConnection();
             CustomerDAO customerDAO =  new CustomerDAO(connection);
-            Customer customer = customerDAO.findById(1000);
-            System.out.println(customer);
+            Customer customer = customerDAO.findById(10000);
+            System.out.println("Before update: " + customer);
 
-            customerDAO.create(customer);
+            customer.setEmail("ggwashington@wh.gov");
+            customerDAO.update(customer);
+            System.out.println("After update: " + customer);
         } catch (SQLException e){
             e.printStackTrace();
         }

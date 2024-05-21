@@ -16,6 +16,9 @@ public class CustomerDAO extends DataAccessObject<Customer> {
     private static final String GET_ONE = "SELECT customer_id, first_name, last_name, email," +
             "phone, address, city, state, zipcode FROM customer WHERE customer_id = ?";
 
+    private static final String UPDATE = "UPDATE customer SET first_name=?, last_name=?," +
+            "email=?, phone=?, address=?, city=?, state=?, zipcode=? WHERE customer_id = ?";
+
     public CustomerDAO(Connection connection) {
         super(connection);
     }
@@ -51,7 +54,28 @@ public class CustomerDAO extends DataAccessObject<Customer> {
 
     @Override
     public Customer update(Customer dto) {
-        return null;
+
+        Customer customer = null;
+        try(PreparedStatement preparedStatement = this.connection.prepareStatement(UPDATE);) {
+
+            preparedStatement.setString(1, dto.getFirstName());
+            preparedStatement.setString(2, dto.getLastName());
+            preparedStatement.setString(3, dto.getEmail());
+            preparedStatement.setString(4, dto.getPhone());
+            preparedStatement.setString(5, dto.getAddress());
+            preparedStatement.setString(6, dto.getCity());
+            preparedStatement.setString(7, dto.getState());
+            preparedStatement.setString(8, dto.getZipCode());
+            preparedStatement.setLong(9, dto.getId());
+            preparedStatement.execute();
+
+            customer = this.findById(dto.getId());
+
+        }catch (SQLException e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return customer;
     }
 
     @Override
