@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 public class JDBCExecutor {
 
@@ -14,8 +15,8 @@ public class JDBCExecutor {
         try{
             Connection connection = databaseConnectionManager.getConnection();
             OrderDAO  orderDAO = new OrderDAO(connection);
-            Order order = orderDAO.findById(1000);
-            System.out.println(order);
+            List<Order> orders = orderDAO.getOrdersForCustomer(789);
+            orders.forEach(System.out::println);
 
         } catch (SQLException e){
             e.printStackTrace();
